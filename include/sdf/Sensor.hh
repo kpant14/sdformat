@@ -44,6 +44,7 @@ namespace sdf
   class Lidar;
   class Magnetometer;
   class NavSat;
+  class NavSatMultipath;
   struct PoseRelativeToGraph;
   template <typename T> class ScopedGraph;
 
@@ -134,6 +135,9 @@ namespace sdf
 
     /// \brief An air speed sensor.
     AIR_SPEED = 26,
+
+    /// \brief A NavSatMultipath sensor, such as GPS.
+    NAVSAT_MULTIPATH = 27,
   };
 
   /// \brief Information about an SDF sensor.
@@ -376,6 +380,25 @@ namespace sdf
     /// is not an NAVSAT.
     /// \sa SensorType Type() const
     public: NavSat *NavSatSensor();
+
+
+    /// \brief Set the NAVSAT sensor.
+    /// \param[in] _navsat The NAVSAT sensor.
+    public: void SetNavSatMultipathSensor(const NavSatMultipath &_navsat_multipath);
+
+    /// \brief Get a pointer to a NAVSAT sensor, or nullptr if the sensor
+    /// does not contain an NAVSAT sensor.
+    /// \return Pointer to the sensor's NAVSAT, or nullptr if the sensor
+    /// is not an NAVSAT.
+    /// \sa SensorType Type() const
+    public: const NavSatMultipath *NavSatMultipathSensor() const;
+
+    /// \brief Get a mutable NAVSAT sensor, or nullptr if the sensor
+    /// does not contain an NAVSAT sensor.
+    /// \return Pointer to the sensor's NAVSAT, or nullptr if the sensor
+    /// is not an NAVSAT.
+    /// \sa SensorType Type() const
+    public: NavSatMultipath *NavSatMultipathSensor();
 
     /// \brief Set the force torque sensor.
     /// \param[in] _ft The force torque sensor.

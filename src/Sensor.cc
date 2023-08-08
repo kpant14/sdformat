@@ -26,6 +26,7 @@
 #include "sdf/Error.hh"
 #include "sdf/ForceTorque.hh"
 #include "sdf/NavSat.hh"
+#include "sdf/NavSatMultipath.hh"
 #include "sdf/Imu.hh"
 #include "sdf/Magnetometer.hh"
 #include "sdf/Lidar.hh"
@@ -64,6 +65,7 @@ const std::vector<std::string> sensorTypeStrs =
   "rgbd_camera",
   "thermal_camera",
   "navsat",
+  "navsat_multipath",
   "segmentation_camera",
   "boundingbox_camera",
   "custom",
@@ -108,6 +110,9 @@ class sdf::Sensor::Implementation
 
   /// \brief Optional NAVSAT sensor.
   public: std::optional<NavSat> navSat;
+
+  /// \brief Optional NAVSAT_MULTIPATH sensor.
+  public: std::optional<NavSatMultipath> navSatMultipath;
 
   /// \brief Optional air pressure sensor.
   public: std::optional<AirPressure> airPressure;
@@ -177,6 +182,8 @@ bool Sensor::operator==(const Sensor &_sensor) const
       return *(this->dataPtr->imu) == *(_sensor.dataPtr->imu);
     case SensorType::NAVSAT:
       return *(this->dataPtr->navSat) == *(_sensor.dataPtr->navSat);
+    case SensorType::NAVSAT_MULTIPATH:
+      return *(this->dataPtr->navSatMultipath) == *(_sensor.dataPtr->navSatMultipath);
     case SensorType::CAMERA:
     case SensorType::DEPTH_CAMERA:
     case SensorType::RGBD_CAMERA:
@@ -345,6 +352,19 @@ Errors Sensor::Load(ElementPtr _sdf)
     Errors err = this->dataPtr->navSat->Load(
       _sdf->GetElement(_sdf->HasElement("navsat") ? "navsat" : "gps"));
     errors.insert(errors.end(), err.begin(), err.end());
+  }
+  else if (type == "navsat_multipath" || type == "gps")
+  {
+    this->dataPtr->type = SensorType::NAVSAT_MULTIPATH;
+    this->dataPtr->navSatMultipath.emplace();
+    Errors err = this->dataPtr->navSatMultipath->Load(
+      _sdf->GetElement(_sdf->HasElement("navsat_mulitpath") ? "navsat_multipath" : "gps"));
+    errors.insert(errors.end(), err.begin(), err.end());
+    // this->dataPtr->type = SensorType::NAVSAT_MULTIPATH;
+    // this->dataPtr->lidar.emplace();
+    // Errors err = this->dataPtr->lidar->Load(
+    //     _sdf->GetElement(_sdf->HasElement("lidar") ? "lidar" : "ray"));
+    // errors.insert(errors.end(), err.begin(), err.end());
   }
   else if (type == "gpu_ray" || type == "gpu_lidar")
   {
@@ -703,6 +723,25 @@ NavSat *Sensor::NavSatSensor()
 {
   return optionalToPointer(this->dataPtr->navSat);
 }
+
+/////////////////////////////////////////////////
+void Sensor::SetNavSatMultipathSensor(const NavSatMultipath &_gps_multipath)
+{
+  this->dataPtr->navSatMultipath = _gps_multipath;
+}
+
+/////////////////////////////////////////////////
+const NavSatMultipath *Sensor::NavSatMultipathSensor() const
+{
+  return optionalToPointer(this->dataPtr->navSatMultipath);
+}
+
+/////////////////////////////////////////////////
+NavSatMultipath *Sensor::NavSatMultipathSensor()
+{
+  return optionalToPointer(this->dataPtr->navSatMultipath);
+}
+
 
 /////////////////////////////////////////////////
 void Sensor::SetImuSensor(const Imu &_imu)
